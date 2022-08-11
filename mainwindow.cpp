@@ -62,12 +62,13 @@ void MainWindow::checkIdle()
     const QLatin1String path = isNotGnome ? COMMON_SS_PATH : GNOME_SS_PATH;
     const QLatin1String method = isNotGnome ? COMMON_SS_F : GNOME_SS_F;
     auto interface = QDBusInterface(availableService, path, iface);
-    QDBusReply<uint> reply;
-    if (interface.isValid())
-        reply = interface.call(method);
-    if (reply.isValid())
-        result = isNotGnome ? reply.value() / 1000 : reply.value();
-    else
-        result = 0;
-    ui->label->setText(QString::number(result));
+    if (interface.isValid()) {
+        QDBusReply<uint> reply = interface.call(method);
+        if (reply.isValid()) {
+            result = isNotGnome ? reply.value() / 1000 : reply.value();
+            ui->label->setText(QString::number(result));
+        } else {
+            ui->label->setText(reply.error().message());
+        }
+    }
 }
